@@ -61,12 +61,23 @@ func main() {
 		mp := machinePassword{}
 		err := c.ShouldBindJSON(&mp)
 		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"code":    20000,
+				"message": "failed",
+				"data":    err,
+			})
 			return
 		}
 		// 获取解密密码
 		password, err := AesDecryptByGCM(mp.Password, DecryptKey)
 		if err != nil {
 			log.Println("password Failed:", err)
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"code":    20000,
+				"message": "failed",
+				"data":    err,
+			})
+			return
 		}
 		// 执行修改密码
 		cmd := exec.Command("chpasswd")
